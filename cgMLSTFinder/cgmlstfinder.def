@@ -1,0 +1,47 @@
+Bootstrap: docker
+From: debian:bullseye
+
+%environment
+    export DEBIAN_FRONTEND=noninteractive
+
+
+%post
+    apt-get update -qq && apt-get -y upgrade
+    apt-get install -y -qq git \
+        apt-utils \
+        wget \
+        python3-pip \
+        prodigal \
+        libz-dev
+    
+    rm -rf /var/cache/apt/* /var/apt/lists/*
+
+%environment
+    export DEBIAN_FRONTEND=Teletype
+
+%post
+    # Install python dependencies
+    pip3 install -U ete3 tabulate cgecore numpy six
+    
+    # Install kma
+    git clone --depth 1 https://bitbucket.org/genomicepidemiology/kma.git
+    cd kma && make
+    mv kma* /bin/
+
+    # Install cgMLSTFinder
+    git clone --depth 1 https://bitbucket.org/genomicepidemiology/cgmlstfinder.git
+    cp cgmlstfinder/cgMLST.py /usr/src/cgMLST.py
+    chmod 755 /usr/src/cgMLST.py
+
+%environment
+    export PATH=$PATH:usr/src/
+
+%post
+    # Set up .bashrc file for convenience during debugging
+    echo "alias ls='ls -h --color=tty'\n"\
+        "alias ll='ls -lrt'\n"\
+        "alias l='less'\n"\
+        "alias du='du -hP --max-depth=1'\n"\
+        "alias cwd='readlink -f .'\n"\
+        "PATH=$PATH\n">> ~/.bashrc
+
