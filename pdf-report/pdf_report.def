@@ -1,0 +1,45 @@
+BootStrap: docker
+From: mambaorg/micromamba:1.5.10-noble
+%files
+    pdf_report.yml
+%post
+    # Install conda environment
+    micromamba install -y -n base -f pdf_report.yml
+    micromamba install -y -n base conda-forge::procps-ng
+    micromamba env export --name base --explicit > environment.lock
+    echo ">> CONDA_LOCK_START"
+    cat environment.lock
+    echo "<< CONDA_LOCK_END"
+    micromamba clean -a -y
+
+    # Install perl (needed for 'tlmgr install')
+    apt-get update && apt-get install -y perl
+    apt-get clean && rm -rf /var/lib/apt/lists/*    
+
+    # Install TinyTex
+    export PATH="$MAMBA_ROOT_PREFIX/bin:$PATH"
+    Rscript -e "tinytex::install_tinytex()"
+    export PATH=/root/.TinyTeX/bin/x86_64-linux:$PATH
+    /root/.TinyTeX/bin/x86_64-linux/tlmgr install \
+        latexmk \
+        xcolor \
+        booktabs \
+        multirow \
+        caption \
+        float \
+        wrapfig \
+        colortbl \
+        pdflscape \
+        tabu \
+        threeparttable \
+        threeparttablex \
+        environ \
+        ulem \
+        makecell \
+        enumitem \
+        needspace \
+        collection-fontsrecommended
+
+    echo 'export PATH=/root/.TinyTeX/bin/x86_64-linux:$PATH' >> $SINGULARITY_ENVIRONMENT
+%environment
+    export PATH="$MAMBA_ROOT_PREFIX/bin:/root/.TinyTeX/bin/x86_64-linux:$PATH"
