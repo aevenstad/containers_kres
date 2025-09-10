@@ -1,5 +1,10 @@
 # cgMLSTFinder
 
+## Build singularity image
+```
+singularity build cgMLSTFinder.sif cgmlstfinder.def
+```
+
 ## Install databases
 Instructions to install database from https://bitbucket.org/genomicepidemiology/cgmlstfinder:
 
@@ -28,7 +33,7 @@ FASTA=$(echo ${FASTA%,})
 
 singularity exec \
   -B /path/to/database/cgmlstfinder_db/:/opt/database +
-  /bigdata/Jessin/Softwares/containers/definition_files/cgMLSTFinder.sif \
+  cgMLSTFinder.sif \
   python3 /usr/src/cgMLST.py +
   -s ecoli \
   -o cgMLSTFinder_out \
