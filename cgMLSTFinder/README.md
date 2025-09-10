@@ -1,7 +1,7 @@
 # cgMLSTFinder
 
-Instructions to install database from https://bitbucket.org/genomicepidemiology/cgmlstfinder
-
+## Install databases
+Instructions to install database from https://bitbucket.org/genomicepidemiology/cgmlstfinder:
 
 ```
 # Go to the directory where you want to store the cgmlst database
@@ -18,4 +18,20 @@ To install a specific database use:
 ```
 # Install specific database
 python3 INSTALL.py -s ecoli
+```
+
+## Run cgMLSTFinder
+In a directory with fasta assemblies:
+```
+FASTA=$(ls *fa | tr "\n" ",")
+FASTA=$(echo ${FASTA%,})
+
+singularity exec \
+  -B /path/to/database/cgmlstfinder_db/:/opt/database +
+  /bigdata/Jessin/Softwares/containers/definition_files/cgMLSTFinder.sif \
+  python3 /usr/src/cgMLST.py +
+  -s ecoli \
+  -o cgMLSTFinder_out \
+  -i $FASTA \
+  -db /opt/database
 ```
